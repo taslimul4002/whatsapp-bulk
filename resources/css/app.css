@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-border: var(--border);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --radius-lg: 0.75rem;
+}
+
+:root {
+    --background: #f7f8fa;
+    --foreground: #17212b;
+    --card: #ffffff;
+    --border: #e2e8e8;
+    --primary: #087c62;
+    --primary-foreground: #ffffff;
+    --muted: #edf2f1;
+    --muted-foreground: #637471;
+}
+
+.dark {
+    --background: #111b1a;
+    --foreground: #e8f0ee;
+    --card: #182625;
+    --border: #30423f;
+    --primary: #2cab86;
+    --primary-foreground: #071b15;
+    --muted: #243633;
+    --muted-foreground: #a7bbb5;
+}
+
+body { background: var(--background); color: var(--foreground); font-family: ui-sans-serif, system-ui, sans-serif; }
+button, a, input, select { outline-color: var(--primary); }

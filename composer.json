@@ -10,6 +10,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.5",
+        "inertiajs/inertia-laravel": "^3.7",
         "laravel/framework": "^13.17",
         "laravel/tinker": "^3.0"
     },
@@ -40,8 +41,7 @@
         "setup": [
             "composer install",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
-            "@php artisan key:generate",
-            "@php artisan migrate --force"
+            "@php artisan key:generate"
         ],
         "test": [
             "@php artisan config:clear --ansi @no_additional_args",
@@ -59,8 +59,7 @@
         ],
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi",
-            "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
-            "@php artisan migrate --graceful --ansi"
+            "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\""
         ],
         "pre-package-uninstall": [
             "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
