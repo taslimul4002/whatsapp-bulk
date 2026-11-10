@@ -1,5 +1,5 @@
-import { Head, Link, usePage } from '@inertiajs/react';
-import { Building2, Languages, LayoutDashboard, LogOut, Menu, MessageCircle, Settings, UserRound, Users, X } from 'lucide-react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Building2, Languages, LayoutDashboard, LogOut, Menu, MessageCircle, Moon, Settings, Sun, UserRound, Users, X } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
@@ -7,9 +7,27 @@ import { cn } from '@/lib/utils';
 import type { Shared } from '@/types';
 
 export default function AppLayout({ title, children }: { title: string; children: ReactNode }) {
-    const { auth, flash, locale } = usePage<Shared>().props;
+    const { auth, flash, locale, currency } = usePage<Shared>().props;
     const t = useTranslation();
     const [open, setOpen] = useState(false);
+    const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'));
+    const [currencyPending, setCurrencyPending] = useState(false);
+    const [currencyError, setCurrencyError] = useState('');
+    function toggleTheme() {
+        const next = !dark;
+        setDark(next);
+        localStorage.setItem('theme', next ? 'dark' : 'light');
+        document.documentElement.classList.toggle('dark', next);
+    }
+    function changeCurrency(code: string) {
+        setCurrencyError('');
+        router.patch('/settings/currency/preference', { currency: code }, {
+            preserveScroll: true,
+            onStart: () => setCurrencyPending(true),
+            onError: errors => setCurrencyError(errors.currency || t('currency.update_failed')),
+            onFinish: () => setCurrencyPending(false),
+        });
+    }
     const can = (permission: string) => auth.user?.type === 'admin' || auth.permissions.includes(permission);
     const targetLocale = locale === 'en' ? 'ar' : 'en';
     const links = [
@@ -48,9 +66,9 @@ export default function AppLayout({ title, children }: { title: string; children
                                 href, 
                                 icon: Icon 
                             }) => 
-                            <Link key={href} href={href} aria-current={currentUrl === href ? 'page' : undefined} 
+                            <Link key={href} href={href} aria-current={currentUrl === href || (href === '/settings' && currentUrl.startsWith('/settings/')) ? 'page' : undefined}
                                 onClick={() => setOpen(false)} className={
-                                    cn('flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground', currentUrl === href && 'bg-muted text-primary')
+                                    cn('flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground', (currentUrl === href || (href === '/settings' && currentUrl.startsWith('/settings/'))) && 'bg-muted text-primary')
                                 }>
                                 <Icon size={18} />{label}
                             </Link>
@@ -63,25 +81,37 @@ export default function AppLayout({ title, children }: { title: string; children
                 </div>
             </aside>
             <div className="min-w-0 flex-1">
-                <header className="flex h-16 items-center justify-between gap-4 border-b border-border bg-card px-4 md:px-8">
-                    <div className="flex items-center gap-2">
+                <header className="flex min-h-16 flex-wrap items-center justify-between gap-2 border-b border-border bg-card px-4 py-2 md:px-8">
+                    <div className="flex min-w-0 items-center gap-2">
                         <Button aria-label={t('common.open_menu')} variant="ghost" size="icon" className="md:hidden" onClick={() => setOpen(true)}>
                             <Menu size={20} />
                         </Button>
 
-                        <span className="font-semibold">{title}</span>
+                        <span className="truncate font-semibold">{title}</span>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1 sm:gap-3">
                         <span className="hidden text-sm text-muted-foreground sm:block">{auth.user?.name}</span>
+                        <div>
+                            <select aria-label={t('currency.select')} value={currency.selected} disabled={currencyPending}
+                                onChange={event => changeCurrency(event.target.value)}
+                                className="h-10 rounded-lg border border-border bg-card px-2 text-sm">
+                                {currency.available.map(code => <option key={code} value={code}>{code}</option>)}
+                            </select>
+                            {currencyError && <p role="alert" className="absolute end-4 top-16 z-10 rounded-lg border border-border bg-card p-2 text-sm text-red-600">{currencyError}</p>}
+                        </div>
+                        <Button type="button" variant="outline" size="icon" aria-label={t(dark ? 'settings.switch_to_light' : 'settings.switch_to_dark')}
+                            title={t(dark ? 'settings.switch_to_light' : 'settings.switch_to_dark')} onClick={toggleTheme}>
+                            {dark ? <Sun size={18} /> : <Moon size={18} />}
+                        </Button>
                         <Button asChild variant="outline">
                             <Link href={`/locale/${targetLocale}`} method="post" as="button" aria-label={t('common.switch_language')}>
                                 {targetLocale === 'ar' ? 'العربية' : 'English'}
                             </Link>
                         </Button>
                         <Button asChild variant="outline">
-                            <Link href="/logout" method="post" as="button">
+                            <Link href="/logout" method="post" as="button" aria-label={t('nav.sign_out')}>
                                 <LogOut size={16} />
-                                {t('nav.sign_out')}
+                                <span className="hidden sm:inline">{t('nav.sign_out')}</span>
                             </Link>
                         </Button>
                     </div>

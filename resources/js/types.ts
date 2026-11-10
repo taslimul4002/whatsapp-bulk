@@ -4,6 +4,7 @@ export type Shared = {
     auth: { user: User | null; permissions: string[] };
     flash: { success: string | null };
     locale: 'en' | 'ar';
+    currency: { selected: string; available: string[] };
     translations: Record<string, string>;
     [key: string]: unknown;
 };

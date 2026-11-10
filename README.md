@@ -29,7 +29,9 @@ Global administrators can manage users, assign their workspace memberships and p
 
 This is a workspace foundation, not a complete tenant isolation layer for future features. Any new workspace-specific records and routes must explicitly enforce membership and scope their queries. New protected pages and actions must define and enforce their own permissions on the server and add them to the administrator's assignment UI.
 
-Settings currently store the light/dark preference in the browser on the current device. Dashboard content is a placeholder.
+The header's light/dark switch stores the preference in the browser on the current device. Currency settings are available in the Settings page's section navigation and start with SAR; administrators can add or remove three-letter ISO 4217 codes, and each user can choose an available currency in the header. Administrators are responsible for entering valid ISO codes. Removing a currency resets users who selected it to SAR. Run `php artisan db:seed --class=TranslationSeeder` after upgrading to add new interface translations without overwriting existing edits.
+
+The currency selection is a display preference, not an exchange rate or a conversion. The formatting helper accepts an amount already denominated in the specified currency; it must never be used to relabel an unconverted amount. Future financial records should store the original amount in integer minor units (or exact decimal), its ISO currency code, and, when conversion is introduced, the exact rate, direction, source and effective time used for each transaction. Never recompute historical transactions using a current rate. Dashboard content is a placeholder.
 
 ## Tests
 

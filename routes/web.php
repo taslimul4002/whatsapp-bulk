@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthenticatedSessionController;
+use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TranslationController;
@@ -25,6 +26,8 @@ Route::middleware('auth')->group(function (): void {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'password'])->name('profile.password');
     Route::get('/settings', fn () => Inertia::render('Settings'))->name('settings');
+    Route::get('/settings/currency', [CurrencyController::class, 'index'])->name('settings.currency');
+    Route::patch('/settings/currency/preference', [CurrencyController::class, 'updatePreference'])->name('settings.currency.preference');
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
@@ -32,6 +35,8 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/workspaces', [WorkspaceController::class, 'store'])->name('workspaces.store');
 
     Route::middleware('admin')->group(function (): void {
+        Route::post('/settings/currency', [CurrencyController::class, 'store'])->name('settings.currency.store');
+        Route::delete('/settings/currency/{currency}', [CurrencyController::class, 'destroy'])->name('settings.currency.destroy');
         Route::get('/translations', [TranslationController::class, 'index'])->name('translations.index');
         Route::post('/translations', [TranslationController::class, 'store'])->name('translations.store');
         Route::put('/translations/{key}', [TranslationController::class, 'update'])

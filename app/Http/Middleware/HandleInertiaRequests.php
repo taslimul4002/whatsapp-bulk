@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\Translation;
 use App\Support\Permissions;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -20,6 +21,10 @@ class HandleInertiaRequests extends Middleware
                 'permissions' => $user?->isAdmin() ? Permissions::All : ($user?->permissions()->pluck('permission')->all() ?? []),
             ],
             'locale' => app()->getLocale(),
+            'currency' => [
+                'selected' => $user?->currency_code ?? 'SAR',
+                'available' => $user ? DB::table('currencies')->orderBy('code')->pluck('code')->all() : [],
+            ],
             'translations' => fn () => Translation::query()
                 ->where('locale', app()->getLocale())
                 ->orderBy('key')
