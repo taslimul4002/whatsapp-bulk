@@ -15,5 +15,6 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Administrators are provisioned explicitly with app:create-admin.
+        $this->call(TranslationSeeder::class);
     }
 }

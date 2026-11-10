@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Middleware\EnsureAdmin;
 use App\Http\Middleware\EnsurePermission;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -14,8 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->web(append: [HandleInertiaRequests::class]);
-        $middleware->alias(['permission' => EnsurePermission::class]);
+        $middleware->web(append: [SetLocale::class, HandleInertiaRequests::class]);
+        $middleware->alias([
+            'admin' => EnsureAdmin::class,
+            'permission' => EnsurePermission::class,
+        ]);
         $middleware->redirectUsersTo('/profile');
     })
     ->withExceptions(function (Exceptions $exceptions): void {

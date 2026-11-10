@@ -34,7 +34,7 @@ class UserController extends Controller
             $this->syncAccess($user, $data);
         });
 
-        return back()->with('success', 'User created.');
+        return back()->with('success', 'flash.user_created');
     }
 
     public function update(SaveUserRequest $request, User $user): RedirectResponse
@@ -57,7 +57,7 @@ class UserController extends Controller
             $this->syncAccess($user, $data);
         });
 
-        return back()->with('success', 'User updated.');
+        return back()->with('success', 'flash.user_updated');
     }
 
     private function syncAccess(User $user, array $data): void

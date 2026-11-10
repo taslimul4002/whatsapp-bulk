@@ -25,7 +25,7 @@ class ProfileController extends Controller
         }
         $user->save();
 
-        return back()->with('success', 'Profile updated.');
+        return back()->with('success', 'flash.profile_updated');
     }
 
     public function password(Request $request): RedirectResponse
@@ -36,6 +36,6 @@ class ProfileController extends Controller
         ]);
         $request->user()->update(['password' => $data['password']]);
 
-        return back()->with('success', 'Password updated.');
+        return back()->with('success', 'flash.password_updated');
     }
 }

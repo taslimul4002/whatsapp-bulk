@@ -24,6 +24,6 @@ class WorkspaceController extends Controller
     {
         Workspace::create($request->validated());
 
-        return back()->with('success', 'Workspace created.');
+        return back()->with('success', 'flash.workspace_created');
     }
 }
