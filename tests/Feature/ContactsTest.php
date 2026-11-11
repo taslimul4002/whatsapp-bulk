@@ -5,6 +5,7 @@ use App\Models\ContactGroup;
 use App\Models\ContactTag;
 use App\Models\User;
 use App\Models\Workspace;
+use App\Support\Permissions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -19,6 +20,7 @@ test('workspace members can manage contacts and their consent and classification
     $user = User::factory()->create();
     $workspace = Workspace::factory()->create();
     $user->workspaces()->attach($workspace);
+    $user->permissions()->create(['permission' => Permissions::Contacts]);
     $group = ContactGroup::factory()->create(['workspace_id' => $workspace->id]);
     $tag = ContactTag::factory()->create(['workspace_id' => $workspace->id]);
     $base = "/workspaces/{$workspace->id}/contacts";
@@ -40,11 +42,22 @@ test('workspace members can manage contacts and their consent and classification
     $this->assertDatabaseMissing('contacts', ['id' => $contact->id]);
 });
 
+test('contact routes require the contacts permission', function () {
+    $user = User::factory()->create();
+    $workspace = Workspace::factory()->create();
+    $user->workspaces()->attach($workspace);
+    $base = "/workspaces/{$workspace->id}/contacts";
+
+    $this->actingAs($user)->get('/contacts')->assertForbidden();
+    $this->get($base)->assertForbidden();
+});
+
 test('workspace isolation covers contact reads writes classifications and transfers', function () {
     $user = User::factory()->create();
     $own = Workspace::factory()->create();
     $other = Workspace::factory()->create();
     $user->workspaces()->attach($own);
+    $user->permissions()->create(['permission' => Permissions::Contacts]);
     $contact = Contact::factory()->create(['workspace_id' => $other->id]);
     $group = ContactGroup::factory()->create(['workspace_id' => $other->id]);
     $tag = ContactTag::factory()->create(['workspace_id' => $other->id]);
@@ -82,6 +95,7 @@ test('groups and tags support scoped creation update and deletion', function () 
     $user = User::factory()->create();
     $workspace = Workspace::factory()->create();
     $user->workspaces()->attach($workspace);
+    $user->permissions()->create(['permission' => Permissions::Contacts]);
     $base = "/workspaces/{$workspace->id}/contacts/classifications";
     $this->actingAs($user);
     foreach (['groups' => ContactGroup::class, 'tags' => ContactTag::class] as $kind => $model) {
@@ -99,6 +113,7 @@ test('csv import updates matching contacts but preserves consent and rejects inv
     $user = User::factory()->create();
     $workspace = Workspace::factory()->create();
     $user->workspaces()->attach($workspace);
+    $user->permissions()->create(['permission' => Permissions::Contacts]);
     $contact = Contact::factory()->create(['workspace_id' => $workspace->id, 'phone' => '+966501234567', 'opted_in' => false]);
     $base = "/workspaces/{$workspace->id}/contacts";
     $csv = "name,phone,email,opted_in\nUpdated,+966501234567,new@example.com,1\nNew,+966501234568,,1\n";
@@ -119,6 +134,7 @@ test('xlsx import and export use real spreadsheets and reject formulas', functio
     $user = User::factory()->create();
     $workspace = Workspace::factory()->create();
     $user->workspaces()->attach($workspace);
+    $user->permissions()->create(['permission' => Permissions::Contacts]);
     $sheet = new Spreadsheet;
     $sheet->getActiveSheet()->fromArray([['name', 'phone', 'email', 'opted_in'], ['Excel', '+966501234567', '', '0']]);
     $sheet->getActiveSheet()->setCellValueExplicit('B2', '+966501234567', DataType::TYPE_STRING);

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Support\Permissions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -14,8 +15,8 @@ test('currency settings and changes require authentication', function () {
     $this->delete('/settings/currency/USD')->assertRedirect('/login');
 });
 
-test('users see SAR by default and can persist an available currency', function () {
-    $user = User::factory()->create();
+test('administrators see SAR by default and can persist an available currency', function () {
+    $user = User::factory()->create(['type' => 'admin']);
     DB::table('currencies')->insert(['code' => 'USD']);
 
     $this->actingAs($user)->get('/settings/currency')
@@ -28,12 +29,12 @@ test('users see SAR by default and can persist an available currency', function 
     $this->get('/profile')->assertInertia(fn (Assert $page) => $page->where('currency.selected', 'USD'));
 });
 
-test('a user cannot select an unavailable currency or manage currencies', function () {
+test('users cannot update their currency preference or manage available currencies', function () {
     $user = User::factory()->create();
+    $user->permissions()->create(['permission' => Permissions::Settings]);
 
-    $this->actingAs($user)->patch('/settings/currency/preference', ['currency' => 'USD'])
-        ->assertSessionHasErrors('currency');
-    $this->patch('/settings/currency/preference', ['currency' => 'sar'])->assertSessionHasErrors('currency');
+    $this->actingAs($user)->get('/settings/currency')->assertOk();
+    $this->patch('/settings/currency/preference', ['currency' => 'USD'])->assertForbidden();
     $this->post('/settings/currency', ['code' => 'USD'])->assertForbidden();
     $this->delete('/settings/currency/SAR')->assertForbidden();
     $this->assertDatabaseMissing('currencies', ['code' => 'USD']);

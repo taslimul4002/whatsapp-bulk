@@ -34,16 +34,15 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'password'])->name('profile.password');
-    Route::get('/settings', fn () => Inertia::render('Settings'))->name('settings');
-    Route::get('/settings/currency', [CurrencyController::class, 'index'])->name('settings.currency');
-    Route::patch('/settings/currency/preference', [CurrencyController::class, 'updatePreference'])->name('settings.currency.preference');
+    Route::get('/settings', fn () => Inertia::render('Settings'))->middleware('permission:'.Permissions::Settings)->name('settings');
+    Route::get('/settings/currency', [CurrencyController::class, 'index'])->middleware('permission:'.Permissions::Settings)->name('settings.currency');
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::get('/workspaces', [WorkspaceController::class, 'index'])->middleware('permission:'.Permissions::Workspaces)->name('workspaces.index');
     Route::post('/workspaces', [WorkspaceController::class, 'store'])->name('workspaces.store');
-    Route::get('/contacts', [ContactController::class, 'index'])->name('contacts.index');
-    Route::prefix('/workspaces/{workspace}/contacts')->middleware(EnsureWorkspaceAccess::class)->group(function (): void {
+    Route::get('/contacts', [ContactController::class, 'index'])->middleware('permission:'.Permissions::Contacts)->name('contacts.index');
+    Route::prefix('/workspaces/{workspace}/contacts')->middleware(['permission:'.Permissions::Contacts, EnsureWorkspaceAccess::class])->group(function (): void {
         Route::get('/', [ContactController::class, 'show'])->name('contacts.workspace');
         Route::post('/', [ContactController::class, 'store'])->name('contacts.store');
         Route::post('/import', [ContactTransferController::class, 'import'])->name('contacts.import');
@@ -66,6 +65,7 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/settings/whatsapp', [WhatsAppSettingsController::class, 'edit'])->name('settings.whatsapp');
         Route::put('/settings/whatsapp', [WhatsAppSettingsController::class, 'update'])->name('settings.whatsapp.update');
         Route::post('/settings/whatsapp/test', [WhatsAppSettingsController::class, 'test'])->name('settings.whatsapp.test');
+        Route::patch('/settings/currency/preference', [CurrencyController::class, 'updatePreference'])->name('settings.currency.preference');
         Route::post('/settings/currency', [CurrencyController::class, 'store'])->name('settings.currency.store');
         Route::delete('/settings/currency/{currency}', [CurrencyController::class, 'destroy'])->name('settings.currency.destroy');
         Route::get('/translations', [TranslationController::class, 'index'])->name('translations.index');

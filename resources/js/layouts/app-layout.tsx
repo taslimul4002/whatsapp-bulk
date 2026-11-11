@@ -34,10 +34,10 @@ export default function AppLayout({ title, children }: { title: string; children
         { label: t('nav.dashboard'), href: '/dashboard', icon: LayoutDashboard, visible: can('dashboard.view') },
         { label: t('nav.users'), href: '/users', icon: Users, visible: auth.user?.type === 'admin' },
         { label: t('nav.workspaces'), href: '/workspaces', icon: Building2, visible: can('workspaces.view') },
-        { label: t('nav.contacts'), href: '/contacts', icon: Users, visible: true },
+        { label: t('nav.contacts'), href: '/contacts', icon: Users, visible: can('contacts.view') },
         { label: t('templates.title'), href: '/templates', icon: MessageCircle, visible: auth.user?.type === 'admin' },
         { label: t('nav.profile'), href: '/profile', icon: UserRound, visible: true },
-        { label: t('nav.settings'), href: '/settings', icon: Settings, visible: true },
+        { label: t('nav.settings'), href: '/settings', icon: Settings, visible: can('settings.view') },
         { label: t('nav.translations'), href: '/translations', icon: Languages, visible: auth.user?.type === 'admin' },
     ];
     const currentUrl = usePage().url.split('?')[0];
@@ -93,14 +93,16 @@ export default function AppLayout({ title, children }: { title: string; children
                     </div>
                     <div className="flex items-center gap-1 sm:gap-3">
                         <span className="hidden text-sm text-muted-foreground sm:block">{auth.user?.name}</span>
-                        <div>
-                            <select aria-label={t('currency.select')} value={currency.selected} disabled={currencyPending}
-                                onChange={event => changeCurrency(event.target.value)}
-                                className="h-10 rounded-lg border border-border bg-card px-2 text-sm cursor-pointer">
-                                {currency.available.map(code => <option key={code} value={code}>{code}</option>)}
-                            </select>
-                            {currencyError && <p role="alert" className="absolute end-4 top-16 z-10 rounded-lg border border-border bg-card p-2 text-sm text-red-600">{currencyError}</p>}
-                        </div>
+                        {auth.user?.type === 'admin' && (
+                            <div>
+                                <select aria-label={t('currency.select')} value={currency.selected} disabled={currencyPending}
+                                    onChange={event => changeCurrency(event.target.value)}
+                                    className="h-10 rounded-lg border border-border bg-card px-2 text-sm cursor-pointer">
+                                    {currency.available.map(code => <option key={code} value={code}>{code}</option>)}
+                                </select>
+                                {currencyError && <p role="alert" className="absolute end-4 top-16 z-10 rounded-lg border border-border bg-card p-2 text-sm text-red-600">{currencyError}</p>}
+                            </div>
+                        )}
                         <Button type="button" className="cursor-pointer" variant="outline" size="icon" aria-label={t(dark ? 'settings.switch_to_light' : 'settings.switch_to_dark')}
                             title={t(dark ? 'settings.switch_to_light' : 'settings.switch_to_dark')} onClick={toggleTheme}>
                             {dark ? <Sun size={18} /> : <Moon size={18} />}

@@ -57,7 +57,9 @@ test('ordinary users are denied ungranted pages and administration endpoints', f
     $this->post('/users', [])->assertForbidden();
     $this->post('/workspaces', ['name' => 'Denied'])->assertForbidden();
     $this->get('/profile')->assertOk();
-    $this->get('/settings')->assertOk();
+    $this->get('/contacts')->assertForbidden();
+    $this->get('/settings')->assertForbidden();
+    $this->get('/settings/currency')->assertForbidden();
 });
 
 test('granted permissions enable the corresponding url and workspace results are isolated', function () {
@@ -68,14 +70,19 @@ test('granted permissions enable the corresponding url and workspace results are
     $user->permissions()->createMany([
         ['permission' => Permissions::Dashboard],
         ['permission' => Permissions::Workspaces],
+        ['permission' => Permissions::Contacts],
+        ['permission' => Permissions::Settings],
     ]);
 
     $this->actingAs($user)->get('/dashboard')->assertOk()->assertInertia(fn (Assert $page) => $page
         ->component('Dashboard')
         ->where('auth.user.type', 'user')
-        ->where('auth.permissions', [Permissions::Dashboard, Permissions::Workspaces]));
+        ->where('auth.permissions', [Permissions::Contacts, Permissions::Dashboard, Permissions::Settings, Permissions::Workspaces]));
     $this->get('/workspaces')->assertOk()->assertInertia(fn (Assert $page) => $page
         ->component('Workspaces')->has('workspaces', 1)->where('workspaces.0.name', 'Own workspace'));
+    $this->get('/contacts')->assertOk()->assertInertia(fn (Assert $page) => $page->component('Contacts'));
+    $this->get('/settings')->assertOk();
+    $this->get('/settings/currency')->assertOk();
     $this->get('/users')->assertForbidden();
 });
 

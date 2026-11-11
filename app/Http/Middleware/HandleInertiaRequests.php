@@ -18,7 +18,7 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'auth' => [
                 'user' => $user?->only('id', 'name', 'email', 'type'),
-                'permissions' => $user?->isAdmin() ? Permissions::All : ($user?->permissions()->pluck('permission')->all() ?? []),
+                'permissions' => $user?->isAdmin() ? Permissions::All : ($user?->permissions()->orderBy('permission')->pluck('permission')->all() ?? []),
             ],
             'locale' => app()->getLocale(),
             'currency' => [

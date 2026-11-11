@@ -85,7 +85,11 @@ function EditUser({
             {availablePermissions.map(permission => (
                 <label key={permission} className="flex items-center gap-2 text-sm">
                     <input  className="cursor-pointer" type="checkbox" checked={form.data.permissions.includes(permission)} onChange={() => togglePermission(permission)} />
-                    {permission === 'dashboard.view' ? t('users.view_dashboard') : permission === 'workspaces.view' ? t('users.view_workspaces') : permission}
+                    {permission === 'dashboard.view' ? t('users.view_dashboard')
+                        : permission === 'workspaces.view' ? t('users.view_workspaces')
+                        : permission === 'contacts.view' ? t('users.view_contacts')
+                        : permission === 'settings.view' ? t('users.view_settings')
+                        : permission}
                 </label>
             ))}
             {form.errors.permissions && <span role="alert" className="text-sm text-red-600">{form.errors.permissions}</span>}

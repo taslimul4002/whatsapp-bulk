@@ -8,5 +8,9 @@ class Permissions
 
     public const Workspaces = 'workspaces.view';
 
-    public const All = [self::Dashboard, self::Workspaces];
+    public const Contacts = 'contacts.view';
+
+    public const Settings = 'settings.view';
+
+    public const All = [self::Dashboard, self::Workspaces, self::Contacts, self::Settings];
 }
