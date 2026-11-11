@@ -54,7 +54,7 @@ export default function WhatsAppSettings({ account, webhookUrl }: { account: Acc
                     <Field label={t('whatsapp.verify_token')} error={form.errors.verify_token}>
                         <Input type="password" autoComplete="new-password" value={form.data.verify_token} onChange={event => form.setData('verify_token', event.target.value)} required={!account} />
                     </Field>
-                    <Button className="self-start" disabled={form.processing}>{t('common.save')}</Button>
+                    <Button className="self-start cursor-pointer" disabled={form.processing}>{t('common.save')}</Button>
                 </form>
             </Panel>
             <Panel title={t('whatsapp.webhook')}>
@@ -64,7 +64,7 @@ export default function WhatsAppSettings({ account, webhookUrl }: { account: Acc
             <Panel title={t('whatsapp.test_connection')}>
                 <p className="text-sm text-muted-foreground">{t('whatsapp.test_help')}</p>
                 {connection.errors.connection && <p role="alert" className="text-sm text-red-600">{t(connection.errors.connection)}</p>}
-                <Button type="button" className="self-start" variant="outline" disabled={connection.processing}
+                <Button type="button" className="cursor-pointer self-start" variant="outline" disabled={connection.processing}
                     onClick={() => connection.post('/settings/whatsapp/test', { preserveScroll: true })}>
                     {t('whatsapp.test_connection')}
                 </Button>

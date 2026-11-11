@@ -34,6 +34,8 @@ export default function AppLayout({ title, children }: { title: string; children
         { label: t('nav.dashboard'), href: '/dashboard', icon: LayoutDashboard, visible: can('dashboard.view') },
         { label: t('nav.users'), href: '/users', icon: Users, visible: auth.user?.type === 'admin' },
         { label: t('nav.workspaces'), href: '/workspaces', icon: Building2, visible: can('workspaces.view') },
+        { label: t('nav.contacts'), href: '/contacts', icon: Users, visible: true },
+        { label: t('templates.title'), href: '/templates', icon: MessageCircle, visible: auth.user?.type === 'admin' },
         { label: t('nav.profile'), href: '/profile', icon: UserRound, visible: true },
         { label: t('nav.settings'), href: '/settings', icon: Settings, visible: true },
         { label: t('nav.translations'), href: '/translations', icon: Languages, visible: auth.user?.type === 'admin' },
@@ -66,7 +68,7 @@ export default function AppLayout({ title, children }: { title: string; children
                                 href, 
                                 icon: Icon 
                             }) => 
-                            <Link key={href} href={href} aria-current={currentUrl === href || (href === '/settings' && currentUrl.startsWith('/settings/')) ? 'page' : undefined}
+                            <Link key={href} href={href} aria-current={currentUrl === href || (href === '/settings' && currentUrl.startsWith('/settings/')) || (href === '/contacts' && currentUrl.includes('/contacts')) ? 'page' : undefined}
                                 onClick={() => setOpen(false)} className={
                                     cn('flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground', (currentUrl === href || (href === '/settings' && currentUrl.startsWith('/settings/'))) && 'bg-muted text-primary')
                                 }>

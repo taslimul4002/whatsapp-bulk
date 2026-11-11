@@ -61,6 +61,15 @@ class WhatsAppWebhookController extends Controller
                 if ($change['field'] === 'messages' && ! isset($change['value']['metadata']['phone_number_id'])) {
                     abort(400, 'Missing phone number ID.');
                 }
+                if ($change['field'] === 'message_template_status_update') {
+                    $statusValidator = Validator::make([...$change['value'], 'time' => $entry['time'] ?? null], [
+                        'time' => ['required', 'integer', 'min:1'],
+                        'message_template_id' => ['required', 'regex:/^[0-9]{1,64}$/'],
+                        'event' => ['required', 'string', 'max:64', 'regex:/^[A-Z_]+$/'],
+                        'reason' => ['nullable', 'string', 'max:1000'],
+                    ]);
+                    abort_if($statusValidator->fails(), 400, 'Invalid template status update.');
+                }
             }
         }
 

@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\WhatsAppEvent;
+use App\Models\WhatsAppTemplate;
 use Illuminate\Contracts\Queue\ShouldBeEncrypted;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -33,6 +34,19 @@ class ProcessWhatsAppWebhook implements ShouldBeEncrypted, ShouldQueue
 
             foreach ($entry['changes'] as $change) {
                 $value = $change['value'];
+                if ($change['field'] === 'message_template_status_update') {
+                    WhatsAppTemplate::query()
+                        ->where('business_account_id', $this->businessAccountId)
+                        ->where('meta_id', (string) $value['message_template_id'])
+                        ->where(fn ($query) => $query->whereNull('status_event_time')->orWhere('status_event_time', '<', $entry['time']))
+                        ->update([
+                            'status' => $value['event'],
+                            'reason' => $value['reason'] ?? null,
+                            'status_event_time' => $entry['time'],
+                        ]);
+
+                    continue;
+                }
                 if ($change['field'] !== 'messages' || ($value['metadata']['phone_number_id'] ?? null) !== $this->phoneNumberId) {
                     continue;
                 }
