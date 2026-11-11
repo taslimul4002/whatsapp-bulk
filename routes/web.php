@@ -1,11 +1,13 @@
 <?php
 
 use App\Http\Controllers\AuthenticatedSessionController;
+use App\Http\Controllers\BillingController;
 use App\Http\Controllers\ContactClassificationController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ContactTransferController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\PayPalWebhookController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TranslationController;
 use App\Http\Controllers\UserController;
@@ -22,6 +24,7 @@ Route::redirect('/', '/dashboard');
 Route::post('/locale/{locale}', [LocaleController::class, 'update'])->name('locale.update');
 Route::get('/webhooks/whatsapp', [WhatsAppWebhookController::class, 'verify'])->name('whatsapp.webhook');
 Route::post('/webhooks/whatsapp', [WhatsAppWebhookController::class, 'receive'])->name('whatsapp.webhook.receive');
+Route::post('/webhooks/paypal', [PayPalWebhookController::class, 'receive'])->name('paypal.webhook');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
@@ -42,6 +45,7 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/workspaces', [WorkspaceController::class, 'index'])->middleware('permission:'.Permissions::Workspaces)->name('workspaces.index');
     Route::post('/workspaces', [WorkspaceController::class, 'store'])->name('workspaces.store');
     Route::get('/contacts', [ContactController::class, 'index'])->middleware('permission:'.Permissions::Contacts)->name('contacts.index');
+    
     Route::prefix('/workspaces/{workspace}/contacts')->middleware(['permission:'.Permissions::Contacts, EnsureWorkspaceAccess::class])->group(function (): void {
         Route::get('/', [ContactController::class, 'show'])->name('contacts.workspace');
         Route::post('/', [ContactController::class, 'store'])->name('contacts.store');
@@ -55,6 +59,14 @@ Route::middleware('auth')->group(function (): void {
     });
 
     Route::middleware('admin')->group(function (): void {
+        Route::get('/settings/billing', [BillingController::class, 'index'])->name('billing.index');
+        Route::post('/settings/billing/plans', [BillingController::class, 'storePlan'])->name('billing.plans.store');
+        Route::put('/settings/billing/plans/{plan}', [BillingController::class, 'updatePlan'])->whereNumber('plan')->name('billing.plans.update');
+        Route::post('/settings/billing/purchases', [BillingController::class, 'purchase'])->name('billing.purchase');
+        Route::post('/settings/billing/purchases/{purchase}/checkout', [BillingController::class, 'checkout'])->whereNumber('purchase')->name('billing.checkout');
+        Route::post('/settings/billing/purchases/{purchase}/capture', [BillingController::class, 'capture'])->whereNumber('purchase')->name('billing.capture');
+        Route::post('/settings/billing/purchases/{purchase}/refund', [BillingController::class, 'refund'])->whereNumber('purchase')->name('billing.refund');
+
         Route::get('/templates', [WhatsAppTemplateController::class, 'index'])->name('templates.index');
         Route::post('/templates', [WhatsAppTemplateController::class, 'store'])->name('templates.store');
         Route::post('/templates/sync', [WhatsAppTemplateController::class, 'sync'])->name('templates.sync');
@@ -62,12 +74,15 @@ Route::middleware('auth')->group(function (): void {
         Route::delete('/templates/{template}', [WhatsAppTemplateController::class, 'destroy'])->name('templates.destroy');
         Route::post('/templates/{template}/submit', [WhatsAppTemplateController::class, 'submit'])->name('templates.submit');
         Route::post('/templates/{template}/recover', [WhatsAppTemplateController::class, 'recover'])->name('templates.recover');
+
         Route::get('/settings/whatsapp', [WhatsAppSettingsController::class, 'edit'])->name('settings.whatsapp');
         Route::put('/settings/whatsapp', [WhatsAppSettingsController::class, 'update'])->name('settings.whatsapp.update');
         Route::post('/settings/whatsapp/test', [WhatsAppSettingsController::class, 'test'])->name('settings.whatsapp.test');
+
         Route::patch('/settings/currency/preference', [CurrencyController::class, 'updatePreference'])->name('settings.currency.preference');
         Route::post('/settings/currency', [CurrencyController::class, 'store'])->name('settings.currency.store');
         Route::delete('/settings/currency/{currency}', [CurrencyController::class, 'destroy'])->name('settings.currency.destroy');
+
         Route::get('/translations', [TranslationController::class, 'index'])->name('translations.index');
         Route::post('/translations', [TranslationController::class, 'store'])->name('translations.store');
         Route::put('/translations/{key}', [TranslationController::class, 'update'])
