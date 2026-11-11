@@ -17,6 +17,16 @@ class BillingController extends Controller
 {
     public function index(): Response
     {
+        $purchaseBalances = DB::table('billing_purchases')
+            ->join('credit_ledger', 'credit_ledger.purchase_id', '=', 'billing_purchases.id')
+            ->whereIn('billing_purchases.status', ['paid', 'refund_pending', 'review', 'refunded'])
+            ->groupBy('billing_purchases.id', 'billing_purchases.workspace_id', 'billing_purchases.status', 'billing_purchases.expires_at')
+            ->selectRaw("billing_purchases.workspace_id, CASE WHEN billing_purchases.status = 'paid' AND (billing_purchases.expires_at IS NULL OR billing_purchases.expires_at > ?) THEN SUM(credit_ledger.credits) WHEN SUM(credit_ledger.credits) < 0 THEN SUM(credit_ledger.credits) ELSE 0 END as credits", [now()]);
+        $grantBalances = DB::table('broadcast_credit_grants')
+            ->join('billing_purchases', 'billing_purchases.id', '=', 'broadcast_credit_grants.purchase_id')
+            ->groupBy('billing_purchases.workspace_id')
+            ->selectRaw("billing_purchases.workspace_id, SUM(CASE WHEN billing_purchases.status = 'paid' OR broadcast_credit_grants.balance < 0 THEN broadcast_credit_grants.balance ELSE 0 END) as credits");
+
         return Inertia::render('BillingSettings', [
             'plans' => DB::table('billing_plans')->orderBy('id')->get(),
             'workspaces' => DB::table('workspaces')->orderBy('name')->get(['id', 'name']),
@@ -28,12 +38,8 @@ class BillingController extends Controller
             'ledger' => DB::table('credit_ledger')->join('workspaces', 'workspaces.id', '=', 'credit_ledger.workspace_id')
                 ->orderByDesc('credit_ledger.id')->paginate(50, ['credit_ledger.*', 'workspaces.name as workspace_name'], 'ledger_page')->withQueryString(),
             'transactions' => DB::table('billing_transactions')->orderByDesc('id')->paginate(50, ['*'], 'transactions_page')->withQueryString(),
-            'balances' => DB::table('billing_purchases')
-                ->join('credit_ledger', 'credit_ledger.purchase_id', '=', 'billing_purchases.id')
-                ->where('billing_purchases.status', 'paid')
-                ->where(fn ($query) => $query->whereNull('billing_purchases.expires_at')->orWhere('billing_purchases.expires_at', '>', now()))
-                ->groupBy('billing_purchases.workspace_id')
-                ->selectRaw('billing_purchases.workspace_id, SUM(credit_ledger.credits) as credits')->get(),
+            'balances' => DB::query()->fromSub($purchaseBalances->unionAll($grantBalances), 'balances')
+                ->groupBy('workspace_id')->havingRaw('SUM(credits) <> 0')->selectRaw('workspace_id, SUM(credits) as credits')->get(),
         ]);
     }
 

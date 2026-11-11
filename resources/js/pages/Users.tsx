@@ -88,6 +88,7 @@ function EditUser({
                     {permission === 'dashboard.view' ? t('users.view_dashboard')
                         : permission === 'workspaces.view' ? t('users.view_workspaces')
                         : permission === 'contacts.view' ? t('users.view_contacts')
+                        : permission === 'broadcasts.manage' ? t('users.manage_broadcasts')
                         : permission === 'settings.view' ? t('users.view_settings')
                         : permission}
                 </label>

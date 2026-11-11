@@ -10,7 +10,9 @@ class Permissions
 
     public const Contacts = 'contacts.view';
 
+    public const Broadcasts = 'broadcasts.manage';
+
     public const Settings = 'settings.view';
 
-    public const All = [self::Dashboard, self::Workspaces, self::Contacts, self::Settings];
+    public const All = [self::Dashboard, self::Workspaces, self::Contacts, self::Broadcasts, self::Settings];
 }

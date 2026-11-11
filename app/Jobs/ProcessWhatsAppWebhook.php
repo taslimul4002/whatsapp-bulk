@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\WhatsAppEvent;
 use App\Models\WhatsAppTemplate;
+use App\Support\BroadcastService;
 use Illuminate\Contracts\Queue\ShouldBeEncrypted;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -70,6 +71,9 @@ class ProcessWhatsAppWebhook implements ShouldBeEncrypted, ShouldQueue
                                 'context' => array_diff_key($value, array_flip(['messages', 'statuses'])),
                             ],
                         );
+                        if ($type === 'status') {
+                            app(BroadcastService::class)->reconcile($item['id'], $this->phoneNumberId);
+                        }
                     }
                 }
             }

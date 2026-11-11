@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthenticatedSessionController;
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\BroadcastController;
 use App\Http\Controllers\ContactClassificationController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ContactTransferController;
@@ -45,7 +46,15 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/workspaces', [WorkspaceController::class, 'index'])->middleware('permission:'.Permissions::Workspaces)->name('workspaces.index');
     Route::post('/workspaces', [WorkspaceController::class, 'store'])->name('workspaces.store');
     Route::get('/contacts', [ContactController::class, 'index'])->middleware('permission:'.Permissions::Contacts)->name('contacts.index');
-    
+    Route::get('/broadcasts', [BroadcastController::class, 'index'])->middleware('permission:'.Permissions::Broadcasts)->name('broadcasts.index');
+    Route::prefix('/workspaces/{workspace}/broadcasts')->middleware(['permission:'.Permissions::Broadcasts, EnsureWorkspaceAccess::class])->group(function (): void {
+        Route::get('/', [BroadcastController::class, 'index'])->name('broadcasts.workspace');
+        Route::post('/', [BroadcastController::class, 'store'])->name('broadcasts.store');
+        Route::get('/{broadcast}', [BroadcastController::class, 'show'])->whereNumber('broadcast')->name('broadcasts.show');
+        Route::post('/{broadcast}/recipients/{recipient}/retry', [BroadcastController::class, 'retry'])->whereNumber(['broadcast', 'recipient'])->name('broadcasts.retry');
+        Route::post('/{broadcast}/recipients/{recipient}/resolve', [BroadcastController::class, 'resolve'])->whereNumber(['broadcast', 'recipient'])->name('broadcasts.resolve');
+    });
+
     Route::prefix('/workspaces/{workspace}/contacts')->middleware(['permission:'.Permissions::Contacts, EnsureWorkspaceAccess::class])->group(function (): void {
         Route::get('/', [ContactController::class, 'show'])->name('contacts.workspace');
         Route::post('/', [ContactController::class, 'store'])->name('contacts.store');

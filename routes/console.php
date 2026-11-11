@@ -1,5 +1,6 @@
 <?php
 
+use App\Jobs\SendBroadcastRecipient;
 use App\Support\BillingService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -20,3 +21,16 @@ Artisan::command('billing:expire-credits', function (BillingService $billing): v
 })->purpose('Record expired workspace credits');
 
 Schedule::command('billing:expire-credits')->everyMinute()->withoutOverlapping();
+
+Artisan::command('broadcasts:dispatch', function (): void {
+    DB::table('broadcast_recipients')->where('status', 'sending')->where('attempted_at', '<', now()->subMinutes(2))
+        ->update(['status' => 'review', 'error' => 'Worker stopped before the send was confirmed.', 'updated_at' => now()]);
+    DB::table('broadcast_recipients')->join('broadcasts', 'broadcasts.id', '=', 'broadcast_recipients.broadcast_id')
+        ->where('broadcast_recipients.status', 'pending')->where('broadcasts.scheduled_at', '<=', now())
+        ->where(fn ($query) => $query->whereNull('broadcast_recipients.next_attempt_at')->orWhere('broadcast_recipients.next_attempt_at', '<=', now()))
+        ->orderBy('broadcast_recipients.id')->limit(60)->pluck('broadcast_recipients.id')
+        ->each(fn ($id) => SendBroadcastRecipient::dispatch($id));
+    DB::table('broadcast_send_attempts')->where('created_at', '<', now()->subDay())->delete();
+})->purpose('Dispatch due broadcast recipients');
+
+Schedule::command('broadcasts:dispatch')->everyMinute()->withoutOverlapping();

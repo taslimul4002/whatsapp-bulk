@@ -35,6 +35,7 @@ export default function AppLayout({ title, children }: { title: string; children
         { label: t('nav.users'), href: '/users', icon: Users, visible: auth.user?.type === 'admin' },
         { label: t('nav.workspaces'), href: '/workspaces', icon: Building2, visible: can('workspaces.view') },
         { label: t('nav.contacts'), href: '/contacts', icon: Users, visible: can('contacts.view') },
+        { label: t('broadcasts.title'), href: '/broadcasts', icon: MessageCircle, visible: can('broadcasts.manage') },
         { label: t('templates.title'), href: '/templates', icon: MessageCircle, visible: auth.user?.type === 'admin' },
         { label: t('nav.profile'), href: '/profile', icon: UserRound, visible: true },
         { label: t('nav.settings'), href: '/settings', icon: Settings, visible: can('settings.view') },
