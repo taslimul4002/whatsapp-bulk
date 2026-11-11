@@ -33,6 +33,14 @@ The header's light/dark switch stores the preference in the browser on the curre
 
 The currency selection is a display preference, not an exchange rate or a conversion. The formatting helper accepts an amount already denominated in the specified currency; it must never be used to relabel an unconverted amount. Future financial records should store the original amount in integer minor units (or exact decimal), its ISO currency code, and, when conversion is introduced, the exact rate, direction, source and effective time used for each transaction. Never recompute historical transactions using a current rate. Dashboard content is a placeholder.
 
+## WhatsApp Cloud API
+
+After migrating and seeding translations, an administrator can configure one shared account under Settings > WhatsApp. Enter the WhatsApp business account ID, phone number ID, supported Graph API version, access token, Meta app secret, and a verify token chosen by the administrator. The three secrets are encrypted using `APP_KEY` and are never displayed again; leave their fields blank to retain them. Preserve the application key and secure database and queue backups. The connection test checks the saved phone number ID and access token against Meta, not webhook subscription or delivery.
+
+Configure the displayed publicly reachable HTTPS callback URL and the same verify token in the Meta app, then subscribe to the WhatsApp `messages` webhook field for the business account. Ensure the application URL and reverse proxy HTTPS configuration are correct. Meta's POST signature is verified using the app secret before a job is queued. Events for other business accounts or phone numbers are ignored. Incoming messages and individual status updates are stored idempotently as event records; this foundation does not send messages or provide an inbox. Event payloads can contain personal data, so restrict database access and establish an appropriate retention policy.
+
+Use a persistent queue connection and run a supervised queue worker, for example `php artisan queue:work --tries=4`, in production. The webhook responds after dispatch, not after processing. Failed jobs should be monitored and retried using Laravel's queue tooling. Queue job payloads are encrypted; changing `APP_KEY` without retaining the previous key also prevents queued jobs and stored credentials from being decrypted.
+
 ## Tests
 
 The PHPUnit configuration specifies an in-memory SQLite database, and the test base class refuses to run against any other database. Clear cached production configuration and database environment overrides before running tests:

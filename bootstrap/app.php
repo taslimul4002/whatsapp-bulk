@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [SetLocale::class, HandleInertiaRequests::class]);
+        $middleware->validateCsrfTokens(except: ['webhooks/whatsapp']);
         $middleware->alias([
             'admin' => EnsureAdmin::class,
             'permission' => EnsurePermission::class,
@@ -24,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectUsersTo('/profile');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->dontFlash(['access_token', 'app_secret', 'verify_token']);
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );

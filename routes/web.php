@@ -6,6 +6,8 @@ use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TranslationController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WhatsAppSettingsController;
+use App\Http\Controllers\WhatsAppWebhookController;
 use App\Http\Controllers\WorkspaceController;
 use App\Support\Permissions;
 use Illuminate\Support\Facades\Route;
@@ -13,6 +15,8 @@ use Inertia\Inertia;
 
 Route::redirect('/', '/dashboard');
 Route::post('/locale/{locale}', [LocaleController::class, 'update'])->name('locale.update');
+Route::get('/webhooks/whatsapp', [WhatsAppWebhookController::class, 'verify'])->name('whatsapp.webhook');
+Route::post('/webhooks/whatsapp', [WhatsAppWebhookController::class, 'receive'])->name('whatsapp.webhook.receive');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
@@ -35,6 +39,9 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/workspaces', [WorkspaceController::class, 'store'])->name('workspaces.store');
 
     Route::middleware('admin')->group(function (): void {
+        Route::get('/settings/whatsapp', [WhatsAppSettingsController::class, 'edit'])->name('settings.whatsapp');
+        Route::put('/settings/whatsapp', [WhatsAppSettingsController::class, 'update'])->name('settings.whatsapp.update');
+        Route::post('/settings/whatsapp/test', [WhatsAppSettingsController::class, 'test'])->name('settings.whatsapp.test');
         Route::post('/settings/currency', [CurrencyController::class, 'store'])->name('settings.currency.store');
         Route::delete('/settings/currency/{currency}', [CurrencyController::class, 'destroy'])->name('settings.currency.destroy');
         Route::get('/translations', [TranslationController::class, 'index'])->name('translations.index');

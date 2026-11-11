@@ -1,16 +1,20 @@
 import { Link } from '@inertiajs/react';
-import { Coins } from 'lucide-react';
+import { Coins, MessageCircle } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
+import { usePage } from '@inertiajs/react';
+import type { Shared } from '@/types';
 
-type SettingsSection = 'currency';
+type SettingsSection = 'currency' | 'whatsapp';
 
 export default function SettingsLayout({ section, children }: { section: SettingsSection; children: ReactNode }) {
     const t = useTranslation();
+    const { auth } = usePage<Shared>().props;
     const sections = [
         { id: 'currency', label: t('currency.title'), href: '/settings/currency', icon: Coins },
+        ...(auth.user?.type === 'admin' ? [{ id: 'whatsapp', label: t('whatsapp.title'), href: '/settings/whatsapp', icon: MessageCircle }] : []),
     ] as const;
 
     return (
