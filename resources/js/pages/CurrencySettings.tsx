@@ -34,14 +34,14 @@ export default function CurrencySettings() {
                         <Field label={t('currency.code')} error={form.errors.code}>
                             <Input value={form.data.code} onChange={event => form.setData('code', event.target.value.toUpperCase())} maxLength={3} pattern="[A-Z]{3}" required />
                         </Field>
-                        <Button disabled={form.processing}>{t('currency.add')}</Button>
+                        <Button className="cursor-pointer" disabled={form.processing}>{t('currency.add')}</Button>
                     </form>
                     <ul className="flex flex-col gap-2">
                         {currency.available.map(code => (
                             <li key={code} className="flex items-center justify-between gap-3 rounded-lg border border-border p-3 text-sm">
                                 <span>{code}{code === 'SAR' && ` (${t('currency.default')})`}</span>
                                 {code !== 'SAR' && (
-                                    <Button asChild variant="outline">
+                                    <Button className="cursor-pointer" asChild variant="outline">
                                         <Link href={`/settings/currency/${code}`} method="delete" as="button"
                                             aria-label={t('currency.remove_named', { code })}
                                             onClick={event => { if (!window.confirm(t('currency.confirm_remove', { code }))) event.preventDefault(); }}>

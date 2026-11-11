@@ -84,7 +84,7 @@ function EditUser({
             <p className="text-xs text-muted-foreground">{t('users.permissions_help')}</p>
             {availablePermissions.map(permission => (
                 <label key={permission} className="flex items-center gap-2 text-sm">
-                    <input type="checkbox" checked={form.data.permissions.includes(permission)} onChange={() => togglePermission(permission)} />
+                    <input  className="cursor-pointer" type="checkbox" checked={form.data.permissions.includes(permission)} onChange={() => togglePermission(permission)} />
                     {permission === 'dashboard.view' ? t('users.view_dashboard') : permission === 'workspaces.view' ? t('users.view_workspaces') : permission}
                 </label>
             ))}
@@ -94,14 +94,14 @@ function EditUser({
             <legend className="mb-2 text-sm font-medium">{t('users.membership')}</legend>
             {workspaces.length ? workspaces.map(workspace => (
                 <label key={workspace.id} className="flex items-center gap-2 text-sm">
-                    <input type="checkbox" checked={form.data.workspaces.includes(workspace.id)} onChange={() => toggleWorkspace(workspace.id)} />
+                    <input className="cursor-pointer" type="checkbox" checked={form.data.workspaces.includes(workspace.id)} onChange={() => toggleWorkspace(workspace.id)} />
                     {workspace.name}
                 </label>
             )) : <p className="text-sm text-muted-foreground">{t('users.create_workspace_first')}</p>}
             {form.errors.workspaces && <span role="alert" className="text-sm text-red-600">{form.errors.workspaces}</span>}
         </fieldset>
         <div>
-            <Button disabled={form.processing}>{user ? t('users.save') : t('users.create')}</Button>
+            <Button  className="cursor-pointer" disabled={form.processing}>{user ? t('users.save') : t('users.create')}</Button>
         </div>
     </form>
     );
@@ -128,11 +128,11 @@ export default function Users({
             </div>
             <div className="grid items-start gap-6 lg:grid-cols-[minmax(15rem,1fr)_2fr]">
                 <Panel title={t('users.accounts')}>
-                    <Button variant="outline" onClick={() => setSelectedId(null)}>{t('users.new')}</Button>
+                    <Button  className="cursor-pointer" variant="outline" onClick={() => setSelectedId(null)}>{t('users.new')}</Button>
                     <ul className="flex flex-col gap-1">{users.map(user => 
                         <li key={user.id}>
                             <button type="button" onClick={() => setSelectedId(user.id)} aria-pressed={selectedId === user.id} 
-                            className="w-full rounded-lg px-3 py-2 text-start text-sm hover:bg-muted aria-pressed:bg-muted">
+                            className="cursor-pointer w-full rounded-lg px-3 py-2 text-start text-sm hover:bg-muted aria-pressed:bg-muted">
                                 <span className="block font-medium">{user.name}</span>
                                 <span className="block truncate text-xs text-muted-foreground">{user.email}</span>
                             </button>

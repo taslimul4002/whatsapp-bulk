@@ -34,7 +34,7 @@ export default function Login() {
                         <input type="checkbox" checked={form.data.remember} 
                         onChange={event => form.setData('remember', event.target.checked)} />{t('auth.remember_me')}
                     </label>
-                    <Button type="submit" disabled={form.processing}>{t('auth.sign_in')}</Button>
+                    <Button type="submit" className="cursor-pointer" disabled={form.processing}>{t('auth.sign_in')}</Button>
                 </form>
             </div>
         </main>

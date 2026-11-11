@@ -29,7 +29,7 @@ export default function Profile() {
                             <Input type="email" value={profile.data.email} onChange={event => profile.setData('email', event.target.value)} required />
                         </Field>
                         <div>
-                            <Button disabled={profile.processing}>{t('profile.save')}</Button>
+                            <Button className="cursor-pointer" disabled={profile.processing}>{t('profile.save')}</Button>
                         </div>
                     </form>
                 </Panel>
@@ -45,7 +45,7 @@ export default function Profile() {
                             <Input type="password" autoComplete="new-password" value={password.data.password_confirmation} onChange={event => password.setData('password_confirmation', event.target.value)} required />
                         </Field>
                         <div>
-                            <Button disabled={password.processing}>{t('profile.update_password')}</Button>
+                            <Button className="cursor-pointer" disabled={password.processing}>{t('profile.update_password')}</Button>
                         </div>
                     </form>
                 </Panel>

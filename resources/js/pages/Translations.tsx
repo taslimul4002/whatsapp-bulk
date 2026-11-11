@@ -24,7 +24,7 @@ function TranslationRow({ translation }: { translation: TranslationEntry }) {
             <Field label={t('translations.arabic')} error={form.errors.ar}>
                 <Input dir="rtl" value={form.data.ar} onChange={event => form.setData('ar', event.target.value)} required />
             </Field>
-            <Button disabled={form.processing}>{t('translations.save')}</Button>
+            <Button className="cursor-pointer" disabled={form.processing}>{t('translations.save')}</Button>
         </form>
     );
 }
@@ -57,7 +57,7 @@ export default function Translations({ translationEntries }: { translationEntrie
                         <Input dir="rtl" value={form.data.ar} onChange={event => form.setData('ar', event.target.value)} required />
                     </Field>
                     <div className="md:col-span-2">
-                        <Button disabled={form.processing}>{t('translations.create')}</Button>
+                        <Button className="cursor-pointer" disabled={form.processing}>{t('translations.create')}</Button>
                     </div>
                 </form>
             </Panel>

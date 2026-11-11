@@ -94,21 +94,21 @@ export default function AppLayout({ title, children }: { title: string; children
                         <div>
                             <select aria-label={t('currency.select')} value={currency.selected} disabled={currencyPending}
                                 onChange={event => changeCurrency(event.target.value)}
-                                className="h-10 rounded-lg border border-border bg-card px-2 text-sm">
+                                className="h-10 rounded-lg border border-border bg-card px-2 text-sm cursor-pointer">
                                 {currency.available.map(code => <option key={code} value={code}>{code}</option>)}
                             </select>
                             {currencyError && <p role="alert" className="absolute end-4 top-16 z-10 rounded-lg border border-border bg-card p-2 text-sm text-red-600">{currencyError}</p>}
                         </div>
-                        <Button type="button" variant="outline" size="icon" aria-label={t(dark ? 'settings.switch_to_light' : 'settings.switch_to_dark')}
+                        <Button type="button" className="cursor-pointer" variant="outline" size="icon" aria-label={t(dark ? 'settings.switch_to_light' : 'settings.switch_to_dark')}
                             title={t(dark ? 'settings.switch_to_light' : 'settings.switch_to_dark')} onClick={toggleTheme}>
                             {dark ? <Sun size={18} /> : <Moon size={18} />}
                         </Button>
-                        <Button asChild variant="outline">
+                        <Button asChild variant="outline" className="cursor-pointer">
                             <Link href={`/locale/${targetLocale}`} method="post" as="button" aria-label={t('common.switch_language')}>
                                 {targetLocale === 'ar' ? 'العربية' : 'English'}
                             </Link>
                         </Button>
-                        <Button asChild variant="outline">
+                        <Button asChild variant="outline" className="cursor-pointer">
                             <Link href="/logout" method="post" as="button" aria-label={t('nav.sign_out')}>
                                 <LogOut size={16} />
                                 <span className="hidden sm:inline">{t('nav.sign_out')}</span>

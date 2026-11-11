@@ -30,7 +30,7 @@ export default function Workspaces({ workspaces }: { workspaces: Workspace[] }) 
                             <Input value={form.data.name} onChange={event => form.setData('name', event.target.value)} required />
                         </Field>
                         <div>
-                            <Button disabled={form.processing}>{t('common.create')}</Button>
+                            <Button className="cursor-pointer" disabled={form.processing}>{t('common.create')}</Button>
                         </div>
                     </form>
                 </Panel>
